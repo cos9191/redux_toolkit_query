@@ -1,14 +1,17 @@
-import { AppDispatch } from '../store'
 import axios from 'axios'
 import { IUser } from '../../models/IUser'
-import { userSlice } from './UserSlice'
+import { createAsyncThunk } from '@reduxjs/toolkit'
 
-export const getUsers = () => async (dispatch: AppDispatch) => {
-    try {
-        dispatch(userSlice.actions.usersLoading)
-        const response = await axios.get<IUser[]>('https://jsonplaceholder.typicode.com/users')
-        dispatch(userSlice.actions.usersLoadingSuccess(response.data))
-    } catch (e) {
+const Url = 'https://jsonplaceholder.typicode.com/users'
 
+export const getUsers = createAsyncThunk(
+    'user/getAll',
+    async (_, thunkAPI) => {
+        try {
+            const response = await axios.get<IUser[]>(Url)
+            return response.data
+        } catch(err: any) {
+            return thunkAPI.rejectWithValue(`${err}`)
+        }
     }
-}
+)
